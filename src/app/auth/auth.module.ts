@@ -6,7 +6,7 @@ import { AuthRoutingModule } from './auth-routing.module';
 import { RegisterComponent } from './components/register/register.component';
 import { LoginComponent } from './components/login/login.component';
 import { ReactiveFormsModule } from '@angular/forms';
-import { HttpClientModule } from '@angular/common/http';
+import { HttpClientModule, HTTP_INTERCEPTORS} from '@angular/common/http';
 
 import { InputTextModule } from 'primeng/inputtext';
 import { PasswordModule } from 'primeng/password';
@@ -18,6 +18,9 @@ import { AuthService } from './services/auth.service';
 import { MessageService } from 'primeng/api';
 import { ForgotPasswordComponent } from './components/forgot-password/forgot-password.component';
 import { ResetPasswordComponent } from './components/reset-password/reset-password.component';
+import { AuthInterceptor } from './auth.interceptor';
+import { ProgressSpinnerModule } from 'primeng/progressspinner';
+
 
 @NgModule({
   declarations: [
@@ -35,9 +38,14 @@ import { ResetPasswordComponent } from './components/reset-password/reset-passwo
     PasswordModule,
     CheckboxModule,
     ButtonModule,
-    ToastModule
+    ToastModule,
+    ProgressSpinnerModule
   ],
   providers: [
+    {provide:HTTP_INTERCEPTORS,
+      useClass:AuthInterceptor,
+      multi:true
+    },
     AuthService,
     MessageService
   ]

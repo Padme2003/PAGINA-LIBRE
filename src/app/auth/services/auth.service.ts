@@ -8,26 +8,30 @@ import { Observable } from 'rxjs';
 })
 export class AuthService {
 
-  private baseUrl= environment.api
+  private baseUrl = environment.api
 
-  private http=inject(HttpClient)
+  private http = inject(HttpClient)
 
- constructor() { }
- loginConNest(credenciales:any){
-  return this.http.post<any>(`${this.baseUrl}/auth/login`,credenciales)
- }
+  constructor() { }
+  loginConNest(credenciales: any) {
+    return this.http.post<any>(`${this.baseUrl}/auth/login`, credenciales)
+  }
 
- registroConNest(datos:any){
-  return this.http.post<any>(`${this.baseUrl}/register`,datos)
- }
- forgotPassword(datos: any): Observable<any> {  
-  return this.http.post<any>(`${this.baseUrl}/auth/forgot-password`, datos);
- }
+  register(datos: any): Observable<any> {
+    return this.http.post<any>(`${this.baseUrl}/auth/register`, datos);
+  }
 
- // auth.service.ts
+  forgotPassword(datos: any): Observable<any> {
+    return this.http.post<any>(`${this.baseUrl}/auth/forgot-password`, datos);
+  }
 
-resetPassword(data: any): Observable<any> {
-  return this.http.post<any>(`${this.baseUrl}/auth/reset-password`, data);
-}
+  // auth.service.ts
 
+  resetPassword(data: any): Observable<any> {
+    return this.http.post<any>(`${this.baseUrl}/auth/reset-password`, data);
+  }
+
+  getToken():string | null {
+     return localStorage.getItem('token') || sessionStorage.getItem('token');
+  }
 }

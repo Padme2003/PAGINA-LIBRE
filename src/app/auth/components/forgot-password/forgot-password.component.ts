@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit, Renderer2, ViewChild, ElementRef } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { AuthService } from '../../services/auth.service';
 import { Router } from '@angular/router';
@@ -9,39 +9,77 @@ import { MessageService } from 'primeng/api';
   selector: 'app-forgot-password',
   templateUrl: './forgot-password.component.html',
   styleUrls: ['./forgot-password.component.scss'],
-  providers: [MessageService]
+  providers: [MessageService],
 })
-export class ForgotPasswordComponent {
-
+export class ForgotPasswordComponent implements OnInit {
   forgotPasswordForm = new FormGroup({
-    name: new FormControl('', Validators.required),
-    email: new FormControl('', [Validators.required, Validators.email])
+    name: new FormControl('', [
+      Validators.required,
+      Validators.pattern('^[a-zA-Z ]+$'), // Validación: solo letras y espacios
+    ]),
+    email: new FormControl('', [
+      Validators.required,
+      Validators.email, // Validación de correo electrónico
+    ]),
   });
+
+  loading: boolean = false; // Estado de carga
+
+  @ViewChild('nameInput') nameInput!: ElementRef; // Para enfocar el campo de nombre
 
   constructor(
     public layoutService: LayoutService,
     private authService: AuthService,
     private router: Router,
-    private messageService: MessageService
-  ) { }
+    private messageService: MessageService,
+    private renderer: Renderer2
+  ) {}
+
+  ngOnInit() {
+    // Enfocar automáticamente el campo de nombre al cargar la página
+    setTimeout(() => {
+      if (this.nameInput) {
+        this.renderer.selectRootElement(this.nameInput.nativeElement).focus();
+      }
+    }, 0);
+  }
+
+  get name() {
+    return this.forgotPasswordForm.get('name');
+  }
+
+  get email() {
+    return this.forgotPasswordForm.get('email');
+  }
 
   onSubmit() {
     if (this.forgotPasswordForm.valid) {
+      this.loading = true;
       const formData = this.forgotPasswordForm.value;
+
       this.authService.forgotPassword(formData).subscribe(
         (res) => {
-          console.log('Respuesta del servidor:', res);
-          this.messageService.add({ severity: 'success', summary: 'Success', detail: res.message });
-          // Puedes redirigir al usuario si es necesario
-          // this.router.navigate(['/auth/login']);
+          this.loading = false;
+          this.showMessage('success', 'Success', res.message);
+          setTimeout(() => this.router.navigate(['/auth/login']), 4000);
         },
         (error) => {
-          console.error('Error del servidor:', error);
-          this.messageService.add({ severity: 'error', summary: 'Error', detail: error.error.message || 'An error occurred' });
+          this.loading = false;
+          const errorMsg = error.error?.message || 'An unexpected error occurred. Please try again later.';
+          this.showMessage('error', 'Error', errorMsg);
         }
       );
     } else {
-      this.messageService.add({ severity: 'warn', summary: 'Formulario inválido', detail: 'Por favor, complete todos los campos' });
+      this.markAllAsTouched();
+      this.showMessage('warn', 'Invalid Form', 'Please complete all fields correctly.');
     }
+  }
+
+  private showMessage(severity: string, summary: string, detail: string) {
+    this.messageService.add({ severity, summary, detail });
+  }
+
+  private markAllAsTouched() {
+    this.forgotPasswordForm.markAllAsTouched();
   }
 }

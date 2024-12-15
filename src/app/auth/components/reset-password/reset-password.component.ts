@@ -12,13 +12,13 @@ import { MessageService } from 'primeng/api';
   providers: [MessageService]
 })
 export class ResetPasswordComponent implements OnInit {
-
   resetPasswordForm = new FormGroup({
     newPassword: new FormControl('', [Validators.required, Validators.minLength(6)]),
     confirmPassword: new FormControl('', Validators.required)
   }, { validators: this.passwordsMatch });
 
   private token: string = '';
+  loading: boolean = false;
 
   constructor(
     public layoutService: LayoutService,
@@ -50,6 +50,7 @@ export class ResetPasswordComponent implements OnInit {
 
   onSubmit() {
     if (this.resetPasswordForm.valid) {
+      this.loading = true;
       const { newPassword } = this.resetPasswordForm.value;
       const data = {
         newPassword,
@@ -57,17 +58,18 @@ export class ResetPasswordComponent implements OnInit {
       };
       this.authService.resetPassword(data).subscribe(
         (res) => {
-          console.log('Respuesta del servidor:', res);
+          this.loading = false;
           this.messageService.add({ severity: 'success', summary: 'Success', detail: res.message });
-          // Redirigir al usuario al login
           this.router.navigate(['/auth/login']);
         },
         (error) => {
-          console.error('Error del servidor:', error);
-          this.messageService.add({ severity: 'error', summary: 'Error', detail: error.error.message || 'An error occurred' });
+          this.loading = false;
+          const errorMessage = error.status === 400 ? 'Invalid token or password mismatch' : 'Unexpected error occurred';
+          this.messageService.add({ severity: 'error', summary: 'Error', detail: errorMessage });
         }
       );
     } else {
+      this.resetPasswordForm.markAllAsTouched();
       this.messageService.add({ severity: 'warn', summary: 'Formulario inválido', detail: 'Por favor, complete todos los campos correctamente.' });
     }
   }
