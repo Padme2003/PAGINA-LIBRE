@@ -16,11 +16,15 @@ import { ToastModule } from 'primeng/toast';
 
 import { AuthService } from './services/auth.service';
 import { MessageService } from 'primeng/api';
+import { ForgotPasswordComponent } from './components/forgot-password/forgot-password.component';
+import { ResetPasswordComponent } from './components/reset-password/reset-password.component';
 
 @NgModule({
   declarations: [
     RegisterComponent,
-    LoginComponent
+    LoginComponent,
+    ForgotPasswordComponent,
+    ResetPasswordComponent
   ],
   imports: [
     CommonModule,

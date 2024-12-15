@@ -3,11 +3,12 @@ import { RouterModule, Routes } from '@angular/router';
 import { LoginComponent } from './components/login/login.component';
 import { RegisterComponent } from './components/register/register.component';
 import { ForgotPasswordComponent } from './components/forgot-password/forgot-password.component';
+import { ResetPasswordComponent } from './components/reset-password/reset-password.component';
 
 const routes: Routes = [
   {
     path: '',
-    redirectTo:'login',
+    redirectTo: 'login',
     pathMatch: 'full'
   },
   {
@@ -21,9 +22,14 @@ const routes: Routes = [
   {
     path: 'forgotPassword',
     component: ForgotPasswordComponent
-  },{ 
-    path:'**',
-    redirectTo:'login',
+  },
+  {
+    path: 'reset-password',
+    component: ResetPasswordComponent
+  }
+  , {
+    path: '**',
+    redirectTo: 'login',
   }
 ];
 
